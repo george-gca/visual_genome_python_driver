@@ -67,6 +67,7 @@ def get_scene_graph(image_id, images='data/',
     """
     if type(images) is str:
         # Instead of a string, we can pass this dict as the argument `images`
+        # Instead of a string, we can pass this dict as the argument `images`
         images = {img.id: img for img in get_all_image_data(images)}
 
     fname = str(image_id) + '.json'
@@ -78,15 +79,14 @@ def get_scene_graph(image_id, images='data/',
     return scene_graph
 
 
-def get_scene_graphs(start_index=0, end_index=-1,
+def get_scene_graphs(image_ids,
                      data_dir='data/', image_data_dir='data/by-id/',
                      min_rels=0, max_rels=100):
     """
     Get scene graphs given locally stored .json files;
     requires `save_scene_graphs_by_id`.
 
-    start_index, end_index : get scene graphs listed by image,
-                           from start_index through end_index
+    image_indexes: list of image id as saved by `save_scene_graphs_by_id`
     data_dir : directory with `image_data.json` and `synsets.json`
     image_data_dir : directory of scene graph jsons saved by image id
                    (see `save_scene_graphs_by_id`)
@@ -96,12 +96,7 @@ def get_scene_graphs(start_index=0, end_index=-1,
     images = {img.id: img for img in get_all_image_data(data_dir)}
     scene_graphs = []
 
-    img_fnames = os.listdir(image_data_dir)
-    if (end_index < 1):
-        end_index = len(img_fnames)
-
-    for fname in img_fnames[start_index: end_index]:
-        image_id = int(fname.split('.')[0])
+    for image_id in image_ids:
         scene_graph = get_scene_graph(
             image_id, images, image_data_dir, data_dir + 'synsets.json')
         n_rels = len(scene_graph.relationships)
@@ -269,7 +264,7 @@ def add_attrs_to_scene_graphs(data_dir='data/'):
         sg_dict[iid]['attributes'] = attrs
 
     with open(os.path.join(data_dir, 'scene_graphs.json'), 'w') as f:
-        json.dump(sg_dict.values(), f)
+        json.dump(list(sg_dict.values()), f)
     del attr_data, sg_dict
     gc.collect()
 
