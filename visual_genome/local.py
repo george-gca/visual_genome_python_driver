@@ -1,10 +1,20 @@
-
-import os
 import gc
 import json
+import os
+
+import pandas as pd
+from nltk.corpus import wordnet as wn
+
 import visual_genome.utils as utils
 from visual_genome.models import (Image, Object, Attribute, Relationship,
                                   Graph, Synset)
+
+image_specific_attributes = {
+    "shape_size",
+    "colour_patterns",
+    "texture_material",
+    "structure"
+}
 
 
 def get_all_image_data(data_dir=None):
@@ -126,6 +136,19 @@ def map_object(object_map, obj):
             del obj['attributes']
         else:
             attrs = []
+
+        if 'abstract_attributes' in obj:
+            abs_attrs = obj['abstract_attributes']
+            del obj['abstract_attributes']
+        else:
+            abs_attrs = []
+
+        if 'situated_attributes' in obj:
+            sit_attrs = obj['situated_attributes']
+            del obj['situated_attributes']
+        else:
+            sit_attrs = []
+
         if 'w' in obj:
             obj['width'] = obj['w']
             obj['height'] = obj['h']
@@ -134,6 +157,8 @@ def map_object(object_map, obj):
         object_ = Object(**obj)
 
         object_.attributes = attrs
+        object_.abstract_attributes = abs_attrs
+        object_.situated_attributes = sit_attrs
         object_map[oid] = object_
 
     return object_map, object_
@@ -204,6 +229,64 @@ def init_synsets(scene_graph, synset_file):
     return scene_graph
 
 
+def extract_attributes(category_attributes):
+    abstract_attributes = []
+
+    for cat, cat_attrs in category_attributes.items():
+        for att in cat_attrs:
+            norm_att = att.replace("beh_-_", "_").replace("_", " ")
+
+            abstract_attributes.append(
+                norm_att
+            )
+
+    return abstract_attributes
+
+
+def init_attributes(scene_graph, attributes_data):
+    """
+    Convert synsets in a scene graph from strings to Synset objects.
+    """
+
+    for obj in scene_graph["objects"]:
+        if "attributes" not in obj:
+            obj["situated_attributes"] = []
+            obj["abstract_attributes"] = []
+        else:
+            obj["situated_attributes"] = obj["attributes"]
+            obj["abstract_attributes"] = []
+
+        if "synsets" in obj and obj["synsets"]:
+            category_attr = attributes_data[attributes_data["wordnet_id"] == obj["synsets"][0]]
+
+            # check if we can map the current object to the VISA dataset via Wordnet synsets
+            if not category_attr.empty:
+                attributes = category_attr["data"].values[0]["attributes"]
+
+                obj["abstract_attributes"].extend(extract_attributes(attributes))
+            else:
+                # the current object has a synset not matching with any category, we try with a similarity based approach
+                # current threshold is 0.75 and we use the WUP similarity measure
+                object_syn = wn.synset(obj["synsets"][0])
+                best_match = (None, 0)
+
+                for category in attributes_data["wordnet_id"]:
+                    category_syn = wn.synset(category)
+                    similarity_score = object_syn.wup_similarity(category_syn)
+
+                    if similarity_score > 0.7 and best_match[1] < similarity_score:
+                        best_match = (category_syn, similarity_score)
+
+                if best_match[0]:
+                    category_attr = attributes_data[attributes_data["wordnet_id"] == best_match[0].name()]
+                    attributes = category_attr["data"].values[0]["attributes"]
+                    obj["abstract_attributes"].extend(extract_attributes(attributes))
+
+        obj["attributes"] = obj["situated_attributes"] + obj["abstract_attributes"]
+
+    return scene_graph
+
+
 # --------------------------------------------------------------------------------------------------
 # This is a pre-processing step that only needs to be executed once.
 # You can download .jsons segmented with these methods from:
@@ -229,8 +312,12 @@ def save_scene_graphs_by_id(data_dir='data/', image_data_dir='data/by-id/'):
     if not os.path.exists(image_data_dir):
         os.mkdir(image_data_dir)
 
+    attributes_data = pd.read_json(data_dir + "visa.jsonl", orient="records", lines=True)
+
     all_data = json.load(open(os.path.join(data_dir, 'scene_graphs.json')))
     for sg_data in all_data:
+        sg_data = init_attributes(sg_data, attributes_data)
+
         img_fname = str(sg_data['image_id']) + '.json'
         with open(os.path.join(image_data_dir, img_fname), 'w') as f:
             json.dump(sg_data, f)
@@ -287,7 +374,7 @@ def get_scene_graphs_VRD(json_file='data/vrd/json/test.json'):
 
 def parse_graph_VRD(d):
     image = Image(d['photo_id'], d['filename'], d[
-                  'width'], d['height'], '', '')
+        'width'], d['height'], '', '')
 
     id2obj = {}
     objs = []
