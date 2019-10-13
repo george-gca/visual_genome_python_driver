@@ -4,6 +4,7 @@ import os
 
 import pandas as pd
 from nltk.corpus import wordnet as wn
+from tqdm import tqdm
 
 import visual_genome.utils as utils
 from visual_genome.models import (Image, Object, Attribute, Relationship,
@@ -315,7 +316,7 @@ def save_scene_graphs_by_id(data_dir='data/', image_data_dir='data/by-id/'):
     attributes_data = pd.read_json(data_dir + "visa.jsonl", orient="records", lines=True)
 
     all_data = json.load(open(os.path.join(data_dir, 'scene_graphs.json')))
-    for sg_data in all_data:
+    for sg_data in tqdm(all_data):
         sg_data = init_attributes(sg_data, attributes_data)
 
         img_fname = str(sg_data['image_id']) + '.json'
