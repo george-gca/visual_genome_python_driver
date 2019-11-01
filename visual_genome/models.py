@@ -91,7 +91,7 @@ class Object:
       synsets    Synset array
     """
 
-    def __init__(self, id, x, y, width, height, names, synsets):
+    def __init__(self, id, x, y, width, height, names, synsets, guesswhat=False):
         self.id = id
         self.x = x
         self.y = y
@@ -99,6 +99,7 @@ class Object:
         self.height = height
         self.names = names
         self.synsets = synsets
+        self.guesswhat = guesswhat
 
     def __str__(self):
         name = self.names[0] if len(self.names) != 0 else 'None'

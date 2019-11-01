@@ -155,6 +155,11 @@ def map_object(object_map, obj):
             obj['height'] = obj['h']
             del obj['w'], obj['h']
 
+        if 'guesswhat' in obj:
+            obj['guesswhat'] = True
+        else:
+            obj['guesswhat'] = False
+
         object_ = Object(**obj)
 
         object_.attributes = attrs
@@ -244,7 +249,11 @@ def extract_attributes(category_attributes):
     return abstract_attributes
 
 
-def init_attributes(scene_graph, attributes_data):
+def extract_location_attributes(obj, scene_graph):
+    image = scene_graph["image"]
+
+
+def init_attributes(scene_graph, attributes_data, gw_image_data):
     """
     Convert synsets in a scene graph from strings to Synset objects.
     """
@@ -285,6 +294,29 @@ def init_attributes(scene_graph, attributes_data):
 
         obj["attributes"] = obj["situated_attributes"] + obj["abstract_attributes"]
 
+    if gw_image_data is not None:
+        for obj in gw_image_data["gw_objects"]:
+            category_attr = attributes_data[attributes_data["concept_id"] == obj["category"]]
+
+            gw_object = {
+                "synsets": [category_attr["wordnet_id"].values[0]],
+                "x": obj["bbox"][0],
+                "y": obj["bbox"][1],
+                "w": obj["bbox"][2],
+                "h": obj["bbox"][3],
+                "names": [obj["category"]],
+                "object_id": obj["id"],
+                "abstract_attributes": [],
+                "situated_attributes": [],
+                "attributes": [],
+                "guesswhat": True
+            }
+
+            attributes = category_attr["data"].values[0]["attributes"]
+            gw_object["abstract_attributes"].extend(extract_attributes(attributes))
+            gw_object["attributes"] = gw_object["abstract_attributes"]
+            scene_graph["objects"].append(gw_object)
+
     return scene_graph
 
 
@@ -314,11 +346,23 @@ def save_scene_graphs_by_id(data_dir='data/', image_data_dir='data/by-id/'):
         os.mkdir(image_data_dir)
 
     attributes_data = pd.read_json(data_dir + "visa.jsonl", orient="records", lines=True)
+    with open(data_dir + "gw_vg_metadata.json") as in_file:
+        gw_vg_metadata = json.load(in_file)
+
+    vg_image_data = get_all_image_data(data_dir)
 
     all_data = json.load(open(os.path.join(data_dir, 'scene_graphs.json')))
     for sg_data in tqdm(all_data):
-        sg_data = init_attributes(sg_data, attributes_data)
+        gw_image_data = None
 
+        if sg_data["image_id"] < len(vg_image_data):
+            vg_image = vg_image_data[sg_data["image_id"]]
+            if vg_image.coco_id is not None:
+                coco_id = str(vg_image.coco_id)
+                if coco_id in gw_vg_metadata:
+                    gw_image_data = gw_vg_metadata[coco_id]
+
+        sg_data = init_attributes(sg_data, attributes_data, gw_image_data)
         img_fname = str(sg_data['image_id']) + '.json'
         with open(os.path.join(image_data_dir, img_fname), 'w') as f:
             json.dump(sg_data, f)
