@@ -249,10 +249,6 @@ def extract_attributes(category_attributes):
     return abstract_attributes
 
 
-def extract_location_attributes(obj, scene_graph):
-    image = scene_graph["image"]
-
-
 def init_attributes(scene_graph, attributes_data, gw_image_data):
     """
     Convert synsets in a scene graph from strings to Synset objects.
@@ -297,25 +293,25 @@ def init_attributes(scene_graph, attributes_data, gw_image_data):
     if gw_image_data is not None:
         for obj in gw_image_data["gw_objects"]:
             category_attr = attributes_data[attributes_data["concept_id"] == obj["category"]]
+            if not category_attr.empty:
+                gw_object = {
+                    "synsets": [category_attr["wordnet_id"].values[0]],
+                    "x": obj["bbox"][0],
+                    "y": obj["bbox"][1],
+                    "w": obj["bbox"][2],
+                    "h": obj["bbox"][3],
+                    "names": [obj["category"]],
+                    "object_id": obj["id"],
+                    "abstract_attributes": [],
+                    "situated_attributes": [],
+                    "attributes": [],
+                    "guesswhat": True
+                }
 
-            gw_object = {
-                "synsets": [category_attr["wordnet_id"].values[0]],
-                "x": obj["bbox"][0],
-                "y": obj["bbox"][1],
-                "w": obj["bbox"][2],
-                "h": obj["bbox"][3],
-                "names": [obj["category"]],
-                "object_id": obj["id"],
-                "abstract_attributes": [],
-                "situated_attributes": [],
-                "attributes": [],
-                "guesswhat": True
-            }
-
-            attributes = category_attr["data"].values[0]["attributes"]
-            gw_object["abstract_attributes"].extend(extract_attributes(attributes))
-            gw_object["attributes"] = gw_object["abstract_attributes"]
-            scene_graph["objects"].append(gw_object)
+                attributes = category_attr["data"].values[0]["attributes"]
+                gw_object["abstract_attributes"].extend(extract_attributes(attributes))
+                gw_object["attributes"] = gw_object["abstract_attributes"]
+                scene_graph["objects"].append(gw_object)
 
     return scene_graph
 
