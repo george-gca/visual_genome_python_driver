@@ -231,11 +231,11 @@ def init_synsets(scene_graph, synset_file):
         s['synset_name'], s['synset_definition']) for s in syn_data}
 
     for obj in scene_graph.objects:
-        obj.synsets = [syn_class[sn] for sn in obj.synsets]
+        obj.synsets = [syn_class[sn] if sn in syn_class else Synset(sn, "") for sn in obj.synsets]
     for rel in scene_graph.relationships:
         rel.synset = [syn_class[sn] for sn in rel.synset]
     for attr in scene_graph.attributes:
-        obj.synset = [syn_class[sn] for sn in attr.synset]
+        attr.synset = [syn_class[sn] for sn in attr.synset]
 
     return scene_graph
 
