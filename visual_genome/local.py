@@ -358,10 +358,10 @@ def save_scene_graphs_by_id(data_dir='data/', image_data_dir='data/by-id/'):
                 if coco_id in gw_vg_metadata:
                     gw_image_data = gw_vg_metadata[coco_id]
 
-        sg_data = init_attributes(sg_data, attributes_data, gw_image_data)
-        img_fname = str(sg_data['image_id']) + '.json'
-        with open(os.path.join(image_data_dir, img_fname), 'w') as f:
-            json.dump(sg_data, f)
+                    sg_data = init_attributes(sg_data, attributes_data, gw_image_data)
+                    img_fname = str(sg_data['image_id']) + '.json'
+                    with open(os.path.join(image_data_dir, img_fname), 'w') as f:
+                        json.dump(sg_data, f)
 
     del all_data
     gc.collect()  # clear memory
