@@ -18,7 +18,7 @@ image_specific_attributes = {
 }
 
 
-def get_all_image_data(data_dir=None):
+def get_all_image_data(data_dir=None, as_dict=False):
     """
     Get Image ids from start_index to end_index.
     """
@@ -26,7 +26,12 @@ def get_all_image_data(data_dir=None):
         data_dir = utils.get_data_dir()
     dataFile = os.path.join(data_dir, 'image_data.json')
     data = json.load(open(dataFile))
-    return [utils.parse_image_data(image) for image in data]
+    if not as_dict:
+        return [utils.parse_image_data(image) for image in data]
+
+    return {
+        image['id'] if 'id' in image else image['image_id']: utils.parse_image_data(image) for image in data
+    }
 
 
 def get_all_region_descriptions(data_dir=None):
@@ -345,13 +350,12 @@ def save_scene_graphs_by_id(data_dir='data/', image_data_dir='data/by-id/'):
     with open(data_dir + "gw_vg_metadata.json") as in_file:
         gw_vg_metadata = json.load(in_file)
 
-    vg_image_data = get_all_image_data(data_dir)
+    vg_image_data = get_all_image_data(data_dir, True)
 
     all_data = json.load(open(os.path.join(data_dir, 'scene_graphs.json')))
-    for sg_data in tqdm(all_data):
-        gw_image_data = None
 
-        if sg_data["image_id"] < len(vg_image_data):
+    for sg_data in tqdm(all_data):
+        if sg_data["image_id"] in vg_image_data:
             vg_image = vg_image_data[sg_data["image_id"]]
             if vg_image.coco_id is not None:
                 coco_id = str(vg_image.coco_id)
@@ -362,7 +366,6 @@ def save_scene_graphs_by_id(data_dir='data/', image_data_dir='data/by-id/'):
                     img_fname = str(sg_data['image_id']) + '.json'
                     with open(os.path.join(image_data_dir, img_fname), 'w') as f:
                         json.dump(sg_data, f)
-
     del all_data
     gc.collect()  # clear memory
 
