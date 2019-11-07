@@ -2,6 +2,7 @@ import gc
 import json
 import os
 
+import numpy as np
 import pandas as pd
 from nltk.corpus import wordnet as wn
 from tqdm import tqdm
@@ -240,7 +241,7 @@ def init_synsets(scene_graph, synset_file):
     return scene_graph
 
 
-def extract_attributes(category_attributes):
+def extract_category_attributes(category_attributes):
     abstract_attributes = []
 
     for cat, cat_attrs in category_attributes.items():
@@ -254,7 +255,44 @@ def extract_attributes(category_attributes):
     return abstract_attributes
 
 
-def init_attributes(scene_graph, attributes_data, gw_image_data):
+def extract_positional_attributes(image, bbox):
+    # we first compute the center of the image as bounding box
+    box_width = image.width / 4
+    box_height = image.height / 2
+
+    center_box = np.array([
+        box_height,
+        box_height,
+        box_width + box_height,
+        box_width + box_height
+    ])
+
+    # convert to format X1, Y1, X2, Y2
+    c_bbox = np.array([
+        bbox[0],
+        bbox[1],
+        bbox[2] + bbox[0],
+        bbox[3] + bbox[1]
+    ])
+
+    diff_boxes = c_bbox - center_box
+
+    positional_attributes = []
+
+    if diff_boxes[1] >= 0:
+        positional_attributes.append("bottom_image")
+    else:
+        positional_attributes.append("top_image")
+
+    if diff_boxes[2] >= 0 and diff_boxes[3] >= 0:
+        positional_attributes.append("right_image")
+    else:
+        positional_attributes.append("left_image")
+
+    return positional_attributes
+
+
+def init_attributes(scene_graph, vg_image, attributes_data, gw_image_data):
     """
     Convert synsets in a scene graph from strings to Synset objects.
     """
@@ -267,6 +305,11 @@ def init_attributes(scene_graph, attributes_data, gw_image_data):
             obj["situated_attributes"] = obj["attributes"]
             obj["abstract_attributes"] = []
 
+        # extract positional attributes from the object bbox
+
+        obj["situated_attributes"].extend(
+            extract_positional_attributes(vg_image, [obj["x"], obj["y"], obj["w"], obj["h"]]))
+
         if "synsets" in obj and obj["synsets"]:
             category_attr = attributes_data[attributes_data["wordnet_id"] == obj["synsets"][0]]
 
@@ -274,7 +317,7 @@ def init_attributes(scene_graph, attributes_data, gw_image_data):
             if not category_attr.empty:
                 attributes = category_attr["data"].values[0]["attributes"]
                 types = category_attr["data"].values[0]["types"]
-                obj["abstract_attributes"].extend(extract_attributes(attributes))
+                obj["abstract_attributes"].extend(extract_category_attributes(attributes))
                 obj["abstract_attributes"].extend([t.replace(" ", "_") for t in types])
             else:
                 # the current object has a synset not matching with any category, we try with a similarity based approach
@@ -293,7 +336,7 @@ def init_attributes(scene_graph, attributes_data, gw_image_data):
                     category_attr = attributes_data[attributes_data["wordnet_id"] == best_match[0].name()]
                     attributes = category_attr["data"].values[0]["attributes"]
                     types = category_attr["data"].values[0]["types"]
-                    obj["abstract_attributes"].extend(extract_attributes(attributes))
+                    obj["abstract_attributes"].extend(extract_category_attributes(attributes))
                     obj["abstract_attributes"].extend([t.replace(" ", "_") for t in types])
 
         obj["attributes"] = obj["situated_attributes"] + obj["abstract_attributes"]
@@ -311,14 +354,14 @@ def init_attributes(scene_graph, attributes_data, gw_image_data):
                     "names": [obj["category"]],
                     "object_id": obj["id"],
                     "abstract_attributes": [],
-                    "situated_attributes": [],
+                    "situated_attributes": extract_positional_attributes(vg_image, obj["bbox"]),
                     "attributes": [],
                     "guesswhat": True
                 }
 
                 attributes = category_attr["data"].values[0]["attributes"]
                 types = category_attr["data"].values[0]["types"]
-                gw_object["abstract_attributes"].extend(extract_attributes(attributes))
+                gw_object["abstract_attributes"].extend(extract_category_attributes(attributes))
                 gw_object["abstract_attributes"].extend([t.replace(" ", "_") for t in types])
                 gw_object["attributes"] = gw_object["abstract_attributes"]
                 scene_graph["objects"].append(gw_object)
@@ -368,7 +411,7 @@ def save_scene_graphs_by_id(data_dir='data/', image_data_dir='data/by-id/'):
                 if coco_id in gw_vg_metadata:
                     gw_image_data = gw_vg_metadata[coco_id]
 
-                    sg_data = init_attributes(sg_data, attributes_data, gw_image_data)
+                    sg_data = init_attributes(sg_data, vg_image, attributes_data, gw_image_data)
                     img_fname = str(sg_data['image_id']) + '.json'
                     with open(os.path.join(image_data_dir, img_fname), 'w') as f:
                         json.dump(sg_data, f)
