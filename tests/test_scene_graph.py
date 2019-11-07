@@ -1,5 +1,3 @@
-import json
-
 import visual_genome.local as vg
 
 # Download scene_graphs, image_data, region descriptions and synsets to folder data/img/vg_data/
@@ -8,13 +6,8 @@ import visual_genome.local as vg
 
 
 if __name__ == "__main__":
-    with open("data/gw_visual_genome_info.json") as in_file:
-        vg_gw_metadata = json.load(in_file)
-
-    image = vg_gw_metadata["train"]["157190"]
-
     scene_graphs = vg.get_scene_graphs(
-        [image["image_id"]],
+        [2325835],
         min_rels=1,
         data_dir='data/vg_data/',
         image_data_dir='data/vg_data/by-id/')

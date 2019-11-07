@@ -231,7 +231,7 @@ def init_synsets(scene_graph, synset_file):
         s['synset_name'], s['synset_definition']) for s in syn_data}
 
     for obj in scene_graph.objects:
-        obj.synsets = [syn_class[sn] if sn in syn_class else Synset(sn, "") for sn in obj.synsets]
+        obj.synsets = [syn_class[sn] if sn in syn_class else Synset(sn, wn.synset(sn)) for sn in obj.synsets]
     for rel in scene_graph.relationships:
         rel.synset = [syn_class[sn] for sn in rel.synset]
     for attr in scene_graph.attributes:
@@ -273,8 +273,9 @@ def init_attributes(scene_graph, attributes_data, gw_image_data):
             # check if we can map the current object to the VISA dataset via Wordnet synsets
             if not category_attr.empty:
                 attributes = category_attr["data"].values[0]["attributes"]
-
+                types = category_attr["data"].values[0]["types"]
                 obj["abstract_attributes"].extend(extract_attributes(attributes))
+                obj["abstract_attributes"].extend([t.replace(" ", "_") for t in types])
             else:
                 # the current object has a synset not matching with any category, we try with a similarity based approach
                 # current threshold is 0.75 and we use the WUP similarity measure
@@ -291,7 +292,9 @@ def init_attributes(scene_graph, attributes_data, gw_image_data):
                 if best_match[0]:
                     category_attr = attributes_data[attributes_data["wordnet_id"] == best_match[0].name()]
                     attributes = category_attr["data"].values[0]["attributes"]
+                    types = category_attr["data"].values[0]["types"]
                     obj["abstract_attributes"].extend(extract_attributes(attributes))
+                    obj["abstract_attributes"].extend([t.replace(" ", "_") for t in types])
 
         obj["attributes"] = obj["situated_attributes"] + obj["abstract_attributes"]
 
@@ -314,7 +317,9 @@ def init_attributes(scene_graph, attributes_data, gw_image_data):
                 }
 
                 attributes = category_attr["data"].values[0]["attributes"]
+                types = category_attr["data"].values[0]["types"]
                 gw_object["abstract_attributes"].extend(extract_attributes(attributes))
+                gw_object["abstract_attributes"].extend([t.replace(" ", "_") for t in types])
                 gw_object["attributes"] = gw_object["abstract_attributes"]
                 scene_graph["objects"].append(gw_object)
 
@@ -354,7 +359,8 @@ def save_scene_graphs_by_id(data_dir='data/', image_data_dir='data/by-id/'):
 
     all_data = json.load(open(os.path.join(data_dir, 'scene_graphs.json')))
 
-    for sg_data in tqdm(all_data):
+    pbar = tqdm()
+    for sg_data in all_data:
         if sg_data["image_id"] in vg_image_data:
             vg_image = vg_image_data[sg_data["image_id"]]
             if vg_image.coco_id is not None:
@@ -366,6 +372,8 @@ def save_scene_graphs_by_id(data_dir='data/', image_data_dir='data/by-id/'):
                     img_fname = str(sg_data['image_id']) + '.json'
                     with open(os.path.join(image_data_dir, img_fname), 'w') as f:
                         json.dump(sg_data, f)
+
+                    pbar.update(1)
     del all_data
     gc.collect()  # clear memory
 
