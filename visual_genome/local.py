@@ -112,7 +112,7 @@ def get_scene_graphs(image_ids,
     images = {img.id: img for img in get_all_image_data(data_dir)}
     scene_graphs = []
 
-    for image_id in image_ids:
+    for image_id in tqdm(image_ids):
         scene_graph = get_scene_graph(
             image_id, images, image_data_dir, data_dir + 'synsets.json')
         n_rels = len(scene_graph.relationships)

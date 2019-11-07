@@ -101,6 +101,9 @@ class Object:
         self.synsets = synsets
         self.guesswhat = guesswhat
 
+    def __eq__(self, other):
+        return self.id == other.id and self.guesswhat and other.guesswhat
+
     def __str__(self):
         name = self.names[0] if len(self.names) != 0 else 'None'
         return '%s' % (name)
