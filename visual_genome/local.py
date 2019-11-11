@@ -2,7 +2,6 @@ import gc
 import json
 import os
 
-import numpy as np
 import pandas as pd
 from nltk.corpus import wordnet as wn
 from tqdm import tqdm
@@ -255,39 +254,49 @@ def extract_category_attributes(category_attributes):
     return abstract_attributes
 
 
-def extract_positional_attributes(image, bbox):
-    # we first compute the center of the image as bounding box
-    box_width = image.width / 4
-    box_height = image.height / 2
-
-    center_box = np.array([
-        box_height,
-        box_height,
-        box_width + box_height,
-        box_width + box_height
-    ])
-
-    # convert to format X1, Y1, X2, Y2
-    c_bbox = np.array([
+def format_box(bbox):
+    return [
         bbox[0],
         bbox[1],
         bbox[2] + bbox[0],
         bbox[3] + bbox[1]
-    ])
+    ]
 
-    diff_boxes = c_bbox - center_box
+
+def extract_positional_attributes(image, bbox):
+    # we first compute the center of the image as bounding box
+    box_width = image.width / 4
+    box_height = image.height / 4
+
+    center_box = [
+        box_height,
+        box_height,
+        box_width + box_height,
+        box_width + box_height
+    ]
+
+    # convert to format X1, Y1, X2, Y2
+    boxA = format_box(bbox)
+    boxB = format_box(center_box)
 
     positional_attributes = []
 
-    if diff_boxes[1] >= 0:
-        positional_attributes.append("bottom_image")
-    else:
-        positional_attributes.append("top_image")
-
-    if diff_boxes[2] >= 0 and diff_boxes[3] >= 0:
+    if boxA[0] > boxB[2]:
+        # boxA is right of boxB
         positional_attributes.append("right_image")
-    else:
+    elif boxB[0] > boxA[2]:
+        # boxA is left of boxB
         positional_attributes.append("left_image")
+
+    if boxA[3] < boxB[1]:
+        # boxA is above boxB
+        positional_attributes.append("top_image")
+    elif boxA[1] > boxB[3]:
+        # boxA is below boxB
+        positional_attributes.append("bottom_image")
+
+    if not positional_attributes:
+        positional_attributes.append("center")
 
     return positional_attributes
 
