@@ -88,6 +88,8 @@ def get_scene_graph(image_id, images='data/',
 
     fname = str(image_id) + '.json'
     image = images[image_id]
+    if not os.path.exists(image_data_dir + fname):
+        return None
     data = json.load(open(image_data_dir + fname, 'r'))
 
     scene_graph = parse_graph_local(data, image)
@@ -115,9 +117,11 @@ def get_scene_graphs(image_ids,
     for image_id in tqdm(image_ids):
         scene_graph = get_scene_graph(
             image_id, images, image_data_dir, data_dir + 'synsets.json')
-        n_rels = len(scene_graph.relationships)
-        if (min_rels <= n_rels <= max_rels):
-            scene_graphs.append(scene_graph)
+
+        if scene_graph:
+            n_rels = len(scene_graph.relationships)
+            if (min_rels <= n_rels <= max_rels):
+                scene_graphs.append(scene_graph)
 
     return scene_graphs
 
