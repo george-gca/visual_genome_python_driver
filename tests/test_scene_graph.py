@@ -7,10 +7,10 @@ import visual_genome.local as vg
 
 if __name__ == "__main__":
     scene_graphs = vg.get_scene_graphs(
-        [2325835],
+        [1592510],
         min_rels=1,
         data_dir='data/vg_data/',
-        image_data_dir='data/vg_data/by-id/')
+        image_data_dir='data/vg_data/by-id-test/')
 
     print("objects: {}".format(scene_graphs[0].objects))
 

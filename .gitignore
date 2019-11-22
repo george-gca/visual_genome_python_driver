@@ -3,3 +3,4 @@
 src/data/*.json
 .idea
 visual_genome.egg-info/
+temp
