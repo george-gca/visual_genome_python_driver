@@ -10,9 +10,9 @@ if __name__ == "__main__":
         [1592510],
         min_rels=0,
         data_dir='data/vg_data/',
-        image_data_dir='data/vg_data/by-id/')
+        image_data_dir='data/vg_data/by-id-test/')
 
-    print("objects: {}".format(scene_graphs[0].objects))
+    print("# objects: {}".format(len(scene_graphs[0].objects)))
 
     for o in scene_graphs[0].objects:
         print("Object: {}".format(o))

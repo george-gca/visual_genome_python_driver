@@ -1,13 +1,11 @@
 import gc
 import json
 import os
-import pickle
 
 import pandas as pd
+import visual_genome.utils as utils
 from nltk.corpus import wordnet as wn
 from tqdm import tqdm
-
-import visual_genome.utils as utils
 from visual_genome.models import (Image, Object, Attribute, Relationship,
                                   Graph, Synset)
 
@@ -21,24 +19,19 @@ image_specific_attributes = {
 if not os.path.exists("cache"):
     os.makedirs("cache")
 
-SIMILARITY_CACHE_PATH = "cache/similarity_cache.pkl"
-SYNSETS_CACHE_PATH = "cache/synsets_cache.pkl"
+SIMILARITY_CACHE_PATH = ".cache/similarity_cache.json"
 
 if os.path.exists(SIMILARITY_CACHE_PATH):
     print("Loading similarity cache...")
-    with open(SIMILARITY_CACHE_PATH, "wb") as in_file:
-        similarity_cache = pickle.load(in_file)
+    try:
+        with open(SIMILARITY_CACHE_PATH, "r") as in_file:
+            similarity_cache = json.load(in_file)
+    except:
+        print("Corrupted cache file...recreating!")
+        similarity_cache = {}
     print("Loaded {} similarities".format(len(similarity_cache)))
 else:
     similarity_cache = {}
-
-if os.path.exists(SYNSETS_CACHE_PATH):
-    print("Loading similarity cache...")
-    with open(SYNSETS_CACHE_PATH, "wb") as in_file:
-        synsets_cache = pickle.load(in_file)
-    print("Loaded {} synsets".format(len(synsets_cache)))
-else:
-    synsets_cache = {}
 
 
 def get_all_image_data(data_dir=None, as_dict=False):
@@ -156,7 +149,7 @@ def map_object(object_map, obj):
     scene graphs from json.
     """
 
-    oid = "gw_{}".format(obj['object_id']) if obj["guesswhat"] else obj["object_id"]
+    oid = "gw_{}".format(obj['object_id']) if obj.get("guesswhat", False) else obj["object_id"]
     obj['id'] = oid
     del obj['object_id']
 
@@ -358,11 +351,7 @@ def init_attributes(scene_graph, vg_image, attributes_data, gw_image_data):
             else:
                 # the current object has a synset not matching with any category, we try with a similarity based approach
                 # current threshold is 0.75 and we use the WUP similarity measure
-                if obj["synsets"][0] not in synsets_cache:
-                    object_syn = wn.synset(obj["synsets"][0])
-                    synsets_cache[obj["synsets"][0]] = object_syn
-                else:
-                    object_syn = synsets_cache[obj["synsets"][0]]
+                object_syn = wn.synset(obj["synsets"][0])
 
                 best_match = (None, 0)
 
@@ -373,14 +362,14 @@ def init_attributes(scene_graph, vg_image, attributes_data, gw_image_data):
                         category_syn = wn.synset(category)
                         similarity_score = object_syn.wup_similarity(category_syn)
 
-                        if similarity_score > 0.7 and best_match[1] < similarity_score:
-                            best_match = (category_syn, similarity_score)
+                        if similarity_score >= 0.75 and best_match[1] < similarity_score:
+                            best_match = (category_syn.name(), similarity_score)
 
                     if best_match[0] is not None:
                         similarity_cache[object_syn.name()] = best_match[0]
 
                 if best_match[0]:
-                    category_attr = attributes_data[attributes_data["wordnet_id"] == best_match[0].name()]
+                    category_attr = attributes_data[attributes_data["wordnet_id"] == best_match[0]]
                     attributes = category_attr["data"].values[0]["attributes"]
                     types = category_attr["data"].values[0]["types"]
                     obj["abstract_attributes"].extend(extract_category_attributes(attributes))
@@ -467,11 +456,8 @@ def save_scene_graphs_by_id(data_dir='data/', image_data_dir='data/by-id/'):
     del all_data
     gc.collect()  # clear memory
 
-    with open(SIMILARITY_CACHE_PATH, mode="wb") as out_file:
-        pickle.dump(similarity_cache, out_file)
-
-    with open(SYNSETS_CACHE_PATH, mode="wb") as out_file:
-        pickle.dump(synsets_cache, out_file)
+    with open(SIMILARITY_CACHE_PATH, mode="w") as out_file:
+        json.dump(similarity_cache, out_file)
 
 
 def add_attrs_to_scene_graphs(data_dir='data/'):
