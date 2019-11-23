@@ -11,7 +11,6 @@ from setuptools import find_packages, setup
 # Local imports
 from visual_genome import __version__
 
-
 HERE = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -22,7 +21,7 @@ def get_description():
     return data
 
 
-REQUIREMENTS = ['requests']
+REQUIREMENTS = ['requests', 'pandas', 'nltk']
 
 setup(
     name='visual_genome',

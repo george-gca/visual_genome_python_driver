@@ -156,7 +156,7 @@ def map_object(object_map, obj):
     scene graphs from json.
     """
 
-    oid = obj['object_id']
+    oid = "gw_{}".format(obj['object_id']) if obj["guesswhat"] else obj["object_id"]
     obj['id'] = oid
     del obj['object_id']
 
