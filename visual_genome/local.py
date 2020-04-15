@@ -1,11 +1,11 @@
 import gc
 import json
 import os
-
 import pandas as pd
-import visual_genome.utils as utils
 from nltk.corpus import wordnet as wn
 from tqdm import tqdm
+
+import visual_genome.utils as utils
 from visual_genome.models import (Image, Object, Attribute, Relationship,
                                   Graph, Synset)
 
@@ -48,6 +48,24 @@ def get_all_image_data(data_dir=None, as_dict=False):
     return {
         image['id'] if 'id' in image else image['image_id']: utils.parse_image_data(image) for image in data
     }
+
+
+def get_region_descriptions(image_ids, data_dir=None):
+    """
+    Get all region descriptions.
+    """
+    if data_dir is None:
+        data_dir = utils.get_data_dir()
+    data_file = os.path.join(data_dir, 'region_descriptions.json')
+    image_data = get_all_image_data(data_dir, True)
+
+    images = json.load(open(data_file))
+    output = []
+    for image in images:
+        if image["id"] in image_ids and len(image["regions"]) > 0:
+            output.append(utils.parse_region_descriptions(
+                image['regions'], image_data[image['id']]))
+    return output
 
 
 def get_all_region_descriptions(data_dir=None):
