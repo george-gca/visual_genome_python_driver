@@ -1,5 +1,12 @@
 # Visual Genome Python Driver
-A python wrapper for the [Visual Genome API](https://visualgenome.org/api/v0/). Visit the website for a complete list of [object models](https://visualgenome.org/api/v0/api_object_model.html) and details about all [endpoints](https://visualgenome.org/api/v0/api_endpoint_reference.html). Look at our [demo](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/region_visualization_demo.ipynb) to see how you can use the python driver to access all the Visual Genome data.
+This is a modified version of the python wrapper for VisualGenome. We heavily modified it 
+so that we can integrate the attribute presented in CompGuessWhat?!. The Python wrapper reads the data
+from several JSON files following the original VisualGenome structure. The VisualGenome knowledge base
+has been extended with additional attributes extracted from several other resources as described 
+in the CompGuessWhat?! paper. Therefore, in the instructions below we will refer to VisualGenome data in general
+because we rely on the same scene graph representations contained in the original knowledge base.
+
+The original python wrapper can be found [here](https://github.com/ranjaykrishna/visual_genome_python_driver).
 
 ## Installation
 To install this wrapper, you can use pip, as it follows
@@ -7,12 +14,9 @@ To install this wrapper, you can use pip, as it follows
 pip install .
 ```
 
-### 2 ways of accessing the data
-There are 2 ways of accessing the visual genome data.
+### Accessing the data
 
-1. Use the API functions to access the data directly from our server. You will not need to keep any local data available.
-2. Download all the data and use our local methods to parse and work with the visual genome data. 
-... You can download the data either from the [Visual Genome website](https://visualgenome.org/api/v0/) or by using the download scripts in the [data directory](https://github.com/ranjaykrishna/visual_genome_python_driver/tree/master/visual_genome/data).
+Download all the data from the following [link](https://www.dropbox.com/s/e1uv40e27xq1xcv/compguesswhat_vg_data.zip?dl=0) and use our local methods to parse and work with the visual genome data. 
 
 ### The API Functions are listed below.
 
@@ -81,7 +85,6 @@ print graph.relationships
 
 The region graph has one object: `horse` and one attribute `brown` to describe the `horse`. It has no relationships.
 
-
 #### Get Scene Graph for an image
 Now, let's get the entire scene graph of an image. Each scene graph has three components: objects, attributes and relationships. Objects are localized in the image with bounding boxes. Attributes modify the object while Relationships are interactions between pairs of objects. We will get the scene graph of an image and print out the objects, attributes and relationships.
 
@@ -94,6 +97,7 @@ Now, let's get the entire scene graph of an image. Each scene graph has three co
 >
 >
 > # Now, let's print out the attributes
+> # Among the attributes you will be able to find 'abstract' and 'situated' attributes by accessing the related object members in dot-notation
 > print graph.attributes
 [3015675: horse is brown, 3015676: horse is spotted, 3015677: horse is red, 3015678: horse is dark brown, 3015679: truck is red, 3015680: horse is brown, 3015681: truck is red, 3015682: sign is blue, 3015683: gate is red, 3015684: truck is white, 3015685: tire is blue, 3015686: gate is wooden, 3015687: horse is standing, 3015688: truck is red, 3015689: horse is brown and white, 3015690: building is tan, 3015691: halter is red, 3015692: horse is brown, 3015693: gate is wooden, 3015694: grass is grassy, 3015695: truck is red, 3015696: gate is orange, 3015697: halter is red, 3015698: tire is blue, 3015699: truck is white, 3015700: trough is white, 3015701: horse is brown and cream, 3015702: leaves is green, 3015703: grass is lush, 3015704: horse is enclosed, 3015705: horse is brown and white, 3015706: horse is chestnut, 3015707: gate is red, 3015708: leaves is green, 3015709: building is brick, 3015710: truck is large, 3015711: gate is red, 3015712: horse is chestnut colored, 3015713: fence is wooden]
 >
@@ -179,15 +183,10 @@ id: 133089, image: 1159910, question: Why is the man cosplaying?, answer: For an
 ```
 
 ### License
-MIT License copyright Ranjay Krishna
+MIT License copyright Alessandro Suglia
 
-### Questions? Comments?
-My hope is that the API and the python wrapper are so easy that you never have to ask questions. But if you have any question, you can contact me directly at ranjaykrishna at gmail or contact the project at stanfordvisualgenome @ gmail.
+### Contact
 
-Follow us on Twitter:
-- [@RanjayKrishna](https://twitter.com/RanjayKrishna)
-- [@VisualGenome](https://twitter.com/visualgenome)
+Please open an issue in case you find anything that you think will be beneficial to add or modify.
 
-### Want to Help?
-If you'd like to help, write example code, contribute patches, document methods, tweet about it. Your help is always appreciated!
 
