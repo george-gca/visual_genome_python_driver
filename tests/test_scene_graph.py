@@ -6,7 +6,7 @@ import visual_genome.local as vg
 
 
 if __name__ == "__main__":
-    scene_graphs = vg.get(
+    scene_graphs = vg.get_scene_graphs(
         [1592510],
         min_rels=0,
         data_dir='data/vg_data/',

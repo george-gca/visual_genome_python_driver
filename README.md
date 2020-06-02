@@ -16,7 +16,7 @@ pip install .
 
 ### Accessing the data
 
-Download all the data from the following [link](https://www.dropbox.com/s/e1uv40e27xq1xcv/compguesswhat_vg_data.zip?dl=0) and use our local methods to parse and work with the visual genome data. 
+Download all the data from the following [link](https://www.dropbox.com/s/zde1vb5x3bxyldv/compguesswhat_vg_data.zip?dl=0) and use our local methods to parse and work with the visual genome data. 
 
 ### The API Functions are listed below.
 
