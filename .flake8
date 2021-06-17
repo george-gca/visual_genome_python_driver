@@ -1,0 +1,54 @@
+[flake8]
+ignore =
+		; Allow function call as argument default
+		B008
+		; Do not enforce trailing comma (lets Black decide what is best)
+		C812
+		; Don't ask for docstring at top of module --- put it in the functions/classes
+		D100
+		; Ignore whitespace before ';'
+    E203,
+		; Stop finding commented out code because it's mistaking shape annotations for code
+		E800,
+		; Do not check for docstring within __inii__ method
+    D107,
+		; Ignore errors for internal mypy traceback, stderr output, or an unmatched line.
+    T499,
+		; Do not warn on too many module members
+		WPS202,
+		; Do not warn when too many arguments in functions
+		WPS211,
+		; Allow relative module references
+		WPS300,
+		; Allow f-strings
+    WPS305,
+		; Allow return statement that simply returns a prior statement
+		WPS331,
+		; Allow new lines to start with a dot (as done by Black)
+    WPS348,
+		; Allow logic in __init__ modules
+    WPS412,
+		; Allow @staticmethod in classes
+		WPS602,
+		; Google Python style is not RST until after processed by Napoleon
+    ; See https://github.com/peterjc/flake8-rst-docstrings/issues/17
+		RST201,
+    RST203,
+		RST301
+max-line-length = 88
+max-complexity = 18
+max-line-complexity = 18
+max-local-variables = 7
+min-name-length = 1
+format = wemake
+
+inline-quotes = double
+docstring-convention = google
+
+allowed-domain-names =
+		data
+
+per-file-ignores =
+    compguesswhat/*/__init__.py:D,F401
+		tests/*:D,F401,WPS202,WPS118,WPS235,WPS226,WPS301,WPS442,S101
+		test_fixtures/*:D,B950,E501,WPS226
