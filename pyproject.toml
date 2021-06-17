@@ -37,6 +37,7 @@ flake8 = "^3.9.2"
 black = "^21.6b0"
 mypy = "^0.902"
 wemake-python-styleguide = "^0.15.2"
+pre-commit = "^2.13.0"
 
 [tool.isort]
 profile = "black"
