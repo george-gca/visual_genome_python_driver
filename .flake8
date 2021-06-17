@@ -14,8 +14,6 @@ ignore =
     D107,
 		# Ignore errors for internal mypy traceback, stderr output, or an unmatched line.
     T499,
-		# Do not warn when builtins are shadowed because this is done a lot in the models
-		WPS125,
 		# Do not warn on too many module members
 		WPS202,
 		# Do not warn when too many arguments in functions
