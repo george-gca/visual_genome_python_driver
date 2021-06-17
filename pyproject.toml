@@ -3,23 +3,26 @@ name = "compguesswhat"
 version = "1.0.0"
 description = ""
 authors = [
-  "Alessandro Suglia <alessandro.suglia@gmail.com>",
-  "Amit Parekh <amit@amitkparekh.com>",
+	"Alessandro Suglia <alessandro.suglia@gmail.com>",
+	"Amit Parekh <amit@amitkparekh.com>",
 ]
 homepage = "https://compguesswhat.github.io"
-repository = "https://github.com/CompGuessWhat/compguesswhat"
+repository = "https://github.com/CompGuessWhat/visual_genome_python_driver"
 classifiers = [
-  "Development Status :: 4 - Beta",
-  "Intended Audience :: Developers",
-  "License :: OSI Approved :: MIT License",
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3.7",
-  "Programming Language :: Python :: 3.8",
-  "Topic :: Software Development :: Libraries",
+	"Development Status :: 4 - Beta",
+	"Intended Audience :: Developers",
+	"License :: OSI Approved :: MIT License",
+	"Programming Language :: Python",
+	"Programming Language :: Python :: 3.7",
+	"Programming Language :: Python :: 3.8",
+	"Topic :: Software Development :: Libraries",
 ]
 readme = "README.md"
 license = "MIT"
 
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -39,7 +42,32 @@ profile = "black"
 combine_as_imports = true
 lines_after_imports = 2
 
+[tool.mypy]
+python_version = "3.8"
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+# Import discovery
+ignore_missing_imports = true
+follow_imports = "normal"
+
+# Disallow dynamic typing
+disallow_any_unimported = true
+disallow_any_generics = false
+
+# Untyped definitions and calls
+disallow_untyped_calls = false
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = false
+
+# Warnings
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+warn_unused_configs = true
+warn_unused_ignores = true
+
+# Config error messages
+show_error_context = false
+show_column_numbers = true
+pretty = false
