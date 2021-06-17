@@ -27,4 +27,3 @@ wget https://visualgenome.org/static/data/dataset/synsets.json.zip;
 unzip synsets.json.zip;
 wget https://visualgenome.org/static/data/dataset/scene_graphs.json.zip;
 unzip scene_graphs.json.zip;
-

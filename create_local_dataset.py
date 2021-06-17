@@ -3,13 +3,21 @@ from argparse import ArgumentParser
 
 import visual_genome.local as vg
 
+
 parser = ArgumentParser()
 
-parser.add_argument("-d", "--data_dir", required=True, help="Main folder containing the VisualGenome data")
+parser.add_argument(
+    "-d",
+    "--data_dir",
+    required=True,
+    help="Main folder containing the VisualGenome data",
+)
 
 
 def main(args):
-    print("-- Building local snapshot of VisualGenome in folder: {}".format(args.data_dir))
+    print(
+        "-- Building local snapshot of VisualGenome in folder: {}".format(args.data_dir)
+    )
 
     # N.B. We assume that we have already downloaded all the required data and stored them in args.data_dir
     # Create per image scene graphs
