@@ -49,6 +49,6 @@ allowed-domain-names =
 		data
 
 per-file-ignores =
-    compguesswhat/*/__init__.py:D,F401
+    visual_genome/*/__init__.py:D,F401
 		tests/*:D,F401,WPS202,WPS118,WPS235,WPS226,WPS301,WPS442,S101
 		test_fixtures/*:D,B950,E501,WPS226
