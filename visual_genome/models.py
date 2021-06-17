@@ -1,8 +1,3 @@
-"""
-Visual Genome Python API wrapper, models
-"""
-
-
 class Image:
     """
     Image.
@@ -21,12 +16,13 @@ class Image:
         self.flickr_id = flickr_id
 
     def __str__(self):
-        return 'id: %d, coco_id: %d, flickr_id: %d, width: %d, url: %s' \
-            % (self.id, -1
-                if self.coco_id is None
-                else self.coco_id, -1
-                if self.flickr_id is None
-                else self.flickr_id, self.width, self.url)
+        return "id: %d, coco_id: %d, flickr_id: %d, width: %d, url: %s" % (
+            self.id,
+            -1 if self.coco_id is None else self.coco_id,
+            -1 if self.flickr_id is None else self.flickr_id,
+            self.width,
+            self.url,
+        )
 
     def __repr__(self):
         return str(self)
@@ -53,11 +49,13 @@ class Region:
         self.height = height
 
     def __str__(self):
-        stat_str = 'id: {0}, x: {1}, y: {2}, width: {3},' \
-                   'height: {4}, phrase: {5}, image: {6}'
-        return stat_str.format(self.id, self.x, self.y,
-                               self.width, self.height, self.phrase,
-                               self.image.id)
+        stat_str = (
+            "id: {0}, x: {1}, y: {2}, width: {3},"
+            "height: {4}, phrase: {5}, image: {6}"
+        )
+        return stat_str.format(
+            self.id, self.x, self.y, self.width, self.height, self.phrase, self.image.id
+        )
 
     def __repr__(self):
         return str(self)
@@ -105,8 +103,8 @@ class Object:
         return self.id == other.id and self.guesswhat and other.guesswhat
 
     def __str__(self):
-        name = self.names[0] if len(self.names) != 0 else 'None'
-        return '%s' % (name)
+        name = self.names[0] if len(self.names) != 0 else "None"
+        return "%s" % (name)
 
     def __repr__(self):
         return str(self)
@@ -129,8 +127,9 @@ class Relationship:
         self.synset = synset
 
     def __str__(self):
-        return "{0}: {1} {2} {3}".format(self.id, self.subject,
-                                         self.predicate, self.object)
+        return "{0}: {1} {2} {3}".format(
+            self.id, self.subject, self.predicate, self.object
+        )
 
     def __repr__(self):
         return str(self)
@@ -168,8 +167,7 @@ class QA:
       a_objects  QAObject array
     """
 
-    def __init__(self, id, image, question, answer,
-                 question_objects, answer_objects):
+    def __init__(self, id, image, question, answer, question_objects, answer_objects):
         self.id = id
         self.image = image
         self.question = question
@@ -178,8 +176,12 @@ class QA:
         self.a_objects = answer_objects
 
     def __str__(self):
-        return 'id: %d, image: %d, question: %s, answer: %s' \
-            % (self.id, self.image.id, self.question, self.answer)
+        return "id: %d, image: %d, question: %s, answer: %s" % (
+            self.id,
+            self.image.id,
+            self.question,
+            self.answer,
+        )
 
     def __repr__(self):
         return str(self)
@@ -218,7 +220,7 @@ class Synset:
         self.definition = definition
 
     def __str__(self):
-        return '{} - {}'.format(self.name, self.definition)
+        return "{} - {}".format(self.name, self.definition)
 
     def __repr__(self):
         return str(self)

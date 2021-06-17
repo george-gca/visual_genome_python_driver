@@ -1,8 +1,8 @@
 # Visual Genome Python Driver
-This is a modified version of the python wrapper for VisualGenome. We heavily modified it 
+This is a modified version of the python wrapper for VisualGenome. We heavily modified it
 so that we can integrate the attribute presented in CompGuessWhat?!. The Python wrapper reads the data
 from several JSON files following the original VisualGenome structure. The VisualGenome knowledge base
-has been extended with additional attributes extracted from several other resources as described 
+has been extended with additional attributes extracted from several other resources as described
 in the CompGuessWhat?! paper. Therefore, in the instructions below we will refer to VisualGenome data in general
 because we rely on the same scene graph representations contained in the original knowledge base.
 
@@ -16,7 +16,7 @@ pip install .
 
 ### Accessing the data
 
-Download all the data from the following [link](https://www.dropbox.com/s/zde1vb5x3bxyldv/compguesswhat_vg_data.zip?dl=0) and use our local methods to parse and work with the visual genome data. 
+Download all the data from the following [link](https://www.dropbox.com/s/zde1vb5x3bxyldv/compguesswhat_vg_data.zip?dl=0) and use our local methods to parse and work with the visual genome data.
 
 ### The API Functions are listed below.
 
@@ -165,19 +165,19 @@ id: 133089, image: 1159910, question: Why is the man cosplaying?, answer: For an
 
 ```python
 > import visual_genome.local as vg
-> 
+>
 > # Convert full .json files to image-specific .jsons, save these to 'data/by-id'.
 > # These files will take up a total ~1.1G space on disk.
 > vg.save_scene_graphs_by_id(data_dir='data/', image_data_dir='data/by-id/')
-> 
+>
 > # Load scene graphs in 'data/by-id', from index 0 to 200.
 > # We'll only keep scene graphs with at least 1 relationship.
 > scene_graphs = vg.get_scene_graphs(start_index=0, end_index=-1, min_rels=1,
 >                                    data_dir='data/', image_data_dir='data/by-id/')
-> 
+>
 > print len(scene_graphs)
 149
-> 
+>
 > print scene_graphs[0].objects
 [clock, street, shade, man, sneakers, headlight, car, bike, bike, sign, building, ... , street, sidewalk, trees, car, work truck]
 ```
@@ -188,5 +188,3 @@ MIT License copyright Alessandro Suglia
 ### Contact
 
 Please open an issue in case you find anything that you think will be beneficial to add or modify.
-
-
