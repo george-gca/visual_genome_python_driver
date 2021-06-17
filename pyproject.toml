@@ -1,0 +1,45 @@
+[tool.poetry]
+name = "compguesswhat"
+version = "1.0.0"
+description = ""
+authors = [
+  "Alessandro Suglia <alessandro.suglia@gmail.com>",
+  "Amit Parekh <amit@amitkparekh.com>",
+]
+homepage = "https://compguesswhat.github.io"
+repository = "https://github.com/CompGuessWhat/compguesswhat"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Topic :: Software Development :: Libraries",
+]
+readme = "README.md"
+license = "MIT"
+
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pandas = "^1.2.4"
+nltk = "^3.6.2"
+tqdm = "^4.61.1"
+requests = "^2.25.1"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^3.9.2"
+black = "^21.6b0"
+mypy = "^0.902"
+wemake-python-styleguide = "^0.15.2"
+
+[tool.isort]
+profile = "black"
+combine_as_imports = true
+lines_after_imports = 2
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
